@@ -84,6 +84,8 @@ export class GitExecutor {
           reject(new GitError(args, result));
         }
       });
+      // Git may exit before reading stdin; the resulting EPIPE is not a failure of the command.
+      child.stdin.on('error', () => undefined);
       child.stdin.end(options.stdin ?? '');
     });
   }

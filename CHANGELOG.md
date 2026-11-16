@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.1
+
+- Fix a crash (`write EPIPE`) on Linux when git exits before reading its input.
+
 ## 0.1.0
 
 First release.
