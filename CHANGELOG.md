@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.2
+
+- New single-tone icons for the extension and the Git tool window.
+
 ## 0.1.1
 
 - Fix a crash (`write EPIPE`) on Linux when git exits before reading its input.

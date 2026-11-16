@@ -2,7 +2,7 @@
   "name": "gitjet",
   "displayName": "GitJet - JetBrains-style Git",
   "description": "The IntelliJ IDEA Git workflow in VS Code: graph log, commit tool window, push preview, branch actions, squash, reword, drop, cherry-pick.",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "publisher": "malinatrash",
   "license": "MIT",
   "engines": {

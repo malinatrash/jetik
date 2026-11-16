@@ -121,7 +121,7 @@ rebind anything in **Keyboard Shortcuts** (search for `gitjet`).
 Search for **GitJet** in the Extensions view (once it is listed in the Marketplace), or download the `.vsix` from [Releases](https://github.com/malinatrash/gitjet/releases) and run:
 
 ```sh
-code --install-extension gitjet-0.1.1.vsix
+code --install-extension gitjet-0.1.2.vsix
 ```
 
 Requires Git 2.31+ and VS Code 1.90+.
