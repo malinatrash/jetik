@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'preact/hooks';
 import type { FileChange } from '../../src/git/models';
+import { FileIcon } from './FileIcon';
 import { Icon } from './Icon';
 import { classes } from './format';
 
@@ -85,6 +86,7 @@ export function FileTree({ changes, onOpen }: { changes: FileChange[]; onOpen(ch
               onOpen(row.file);
             }}
           >
+            <FileIcon path={row.file.path} />
             <span class={`tree-label status-${row.file.status}`}>{fileName(row.file.path)}</span>
             <span class="status-letter">{row.file.status}</span>
           </div>

@@ -7,12 +7,14 @@ import { RepositoryManager } from './host/repositoryManager';
 import { settings } from './host/settings';
 import { showBranchPopup } from './host/ui/branchPopup';
 import { DIFF_SCHEME, DiffPresenter, RevisionContentProvider } from './host/ui/diffPresenter';
+import { FileIconThemes } from './host/ui/fileIcons';
 import { VsCodeInteraction } from './host/ui/interaction';
 import { CommitView } from './host/ui/commitView';
 import { LogView } from './host/ui/logView';
 import { OperationRunner } from './host/ui/operationRunner';
 import { PushDialog } from './host/ui/pushDialog';
 import { StatusBar } from './host/ui/statusBar';
+import { Webviews } from './host/ui/webview';
 
 /** Composition root: builds the object graph and binds commands to it. */
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
@@ -28,6 +30,10 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   const repos = new RepositoryManager(logger, context.workspaceState);
   const ui = new VsCodeInteraction();
   const diffs = new DiffPresenter();
+  const fileIcons = new FileIconThemes();
+  // Views can be resolved as soon as their providers are registered, so the theme has to be ready by then.
+  await fileIcons.reload();
+  const webviews = new Webviews(context.extensionUri, fileIcons);
 
   const runInTerminal = (repo: Repository, command: string) => {
     const terminal = vscode.window.createTerminal({ name: `Git: ${repo.name}`, cwd: repo.root });
@@ -37,7 +43,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   const ops = new OperationRunner(output, runInTerminal);
 
   const workbench: Workbench = {
-    showPushDialog: (repo: Repository, source?: PushSource) => PushDialog.show(context.extensionUri, repo, source, { ui, ops, diffs }),
+    showPushDialog: (repo: Repository, source?: PushSource) => PushDialog.show(webviews, repo, source, { ui, ops, diffs }),
     filterLog: (filter) => void logView.showFiltered(filter),
     runInTerminal,
     updateMethod: settings.updateMethod,
@@ -51,9 +57,9 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     workbench,
   });
 
-  const logView = new LogView(context.extensionUri, repos, createEnv, diffs);
+  const logView = new LogView(webviews, repos, createEnv, diffs);
   ui.messageEditor = logView;
-  const commitView = new CommitView(context.extensionUri, repos, { ui, ops, diffs, workbench });
+  const commitView = new CommitView(webviews, repos, { ui, ops, diffs, workbench });
 
   /** Wraps a command so it runs against the active repository, or explains why it cannot. */
   const withRepo = (handler: (repo: Repository) => unknown) => async () => {
@@ -107,6 +113,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   context.subscriptions.push(
     output,
     repos,
+    fileIcons,
     new StatusBar(repos),
     startAutoFetch(repos),
     vscode.window.registerWebviewViewProvider(LogView.viewId, logView, { webviewOptions: { retainContextWhenHidden: true } }),

@@ -276,6 +276,18 @@ button:disabled {
   text-overflow: ellipsis;
 }
 
+/* File icon from the active icon theme: an image, or a glyph that may be larger than its box. */
+.file-icon {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+}
+
 .sync,
 .status-letter {
   color: var(--muted);

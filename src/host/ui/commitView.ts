@@ -10,7 +10,7 @@ import { settings } from '../settings';
 import { NOTHING, WORKING_TREE, type DiffPresenter } from './diffPresenter';
 import type { Interaction } from './interaction';
 import type { OperationRunner } from './operationRunner';
-import { webviewHtml, webviewOptions, webviewTransport } from './webview';
+import { webviewTransport, type Webviews } from './webview';
 
 /** The Commit tool window: local changes with checkboxes, message, Commit / Commit and Push. */
 export class CommitView implements vscode.WebviewViewProvider, CommitHostApi {
@@ -20,7 +20,7 @@ export class CommitView implements vscode.WebviewViewProvider, CommitHostApi {
   private changes: WorkingChange[] = [];
 
   constructor(
-    private readonly extensionUri: vscode.Uri,
+    private readonly webviews: Webviews,
     private readonly repos: RepositoryManager,
     private readonly deps: { ui: Interaction; ops: OperationRunner; diffs: DiffPresenter; workbench: Workbench },
   ) {
@@ -28,13 +28,15 @@ export class CommitView implements vscode.WebviewViewProvider, CommitHostApi {
   }
 
   resolveWebviewView(view: vscode.WebviewView): void {
-    view.webview.options = webviewOptions(this.extensionUri);
     this.server = serve<CommitHostApi, CommitEvents>(webviewTransport(view.webview), this, (method, error) =>
       console.error(`[gitjet] commit.${method} failed`, error),
     );
-    view.webview.html = webviewHtml(view.webview, this.extensionUri, 'commit');
+    const mounted = this.webviews.mount(view.webview, 'commit');
     view.onDidChangeVisibility(() => view.visible && this.server?.emit('changed', null));
-    view.onDidDispose(() => (this.server = undefined));
+    view.onDidDispose(() => {
+      mounted.dispose();
+      this.server = undefined;
+    });
   }
 
   async show(): Promise<void> {

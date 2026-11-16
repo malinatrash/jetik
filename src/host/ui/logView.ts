@@ -13,7 +13,7 @@ import { SelectionChanges } from '../selectionChanges';
 import { settings } from '../settings';
 import type { DiffPresenter } from './diffPresenter';
 import type { MessageEditor, MessageEditRequest } from './interaction';
-import { webviewHtml, webviewOptions, webviewTransport } from './webview';
+import { webviewTransport, type Webviews } from './webview';
 
 const MAX_REF_SUBMENUS = 5;
 
@@ -71,7 +71,7 @@ export class LogView implements vscode.WebviewViewProvider, MessageEditor, LogHo
   private pendingFilter?: LogFilter;
 
   constructor(
-    private readonly extensionUri: vscode.Uri,
+    private readonly webviews: Webviews,
     private readonly repos: RepositoryManager,
     private readonly createEnv: ActionEnvFactory,
     private readonly diffs: DiffPresenter,
@@ -82,12 +82,12 @@ export class LogView implements vscode.WebviewViewProvider, MessageEditor, LogHo
 
   resolveWebviewView(view: vscode.WebviewView): void {
     this.view = view;
-    view.webview.options = webviewOptions(this.extensionUri);
     this.server = serve<LogHostApi, LogEvents>(webviewTransport(view.webview), this, (method, error) =>
       console.error(`[gitjet] log.${method} failed`, error),
     );
-    view.webview.html = webviewHtml(view.webview, this.extensionUri, 'log');
+    const mounted = this.webviews.mount(view.webview, 'log');
     view.onDidDispose(() => {
+      mounted.dispose();
       this.view = undefined;
       this.server = undefined;
       this.cancelPrompts();

@@ -11,14 +11,14 @@ import { settings } from '../settings';
 import type { DiffPresenter } from './diffPresenter';
 import type { Interaction } from './interaction';
 import type { OperationRunner } from './operationRunner';
-import { webviewHtml, webviewOptions, webviewTransport } from './webview';
+import { webviewTransport, type Webviews } from './webview';
 
 /** The Push Commits dialog: preview of what a push will send, then the push itself. */
 export class PushDialog implements PushHostApi {
   private static current?: vscode.WebviewPanel;
 
   static async show(
-    extensionUri: vscode.Uri,
+    webviews: Webviews,
     repo: Repository,
     source: PushSource | undefined,
     deps: { ui: Interaction; ops: OperationRunner; diffs: DiffPresenter },
@@ -39,13 +39,9 @@ export class PushDialog implements PushHostApi {
 
     PushDialog.current?.dispose();
     const panel = vscode.window.createWebviewPanel('gitjet.push', `Push Commits to ${repo.name}`, vscode.ViewColumn.Active, {
-      ...webviewOptions(extensionUri),
       retainContextWhenHidden: true,
     });
     PushDialog.current = panel;
-    panel.onDidDispose(() => {
-      if (PushDialog.current === panel) PushDialog.current = undefined;
-    });
 
     const dialog = new PushDialog(
       repo,
@@ -55,7 +51,11 @@ export class PushDialog implements PushHostApi {
       deps,
     );
     serve<PushHostApi, PushEvents>(webviewTransport(panel.webview), dialog);
-    panel.webview.html = webviewHtml(panel.webview, extensionUri, 'push');
+    const mounted = webviews.mount(panel.webview, 'push');
+    panel.onDidDispose(() => {
+      mounted.dispose();
+      if (PushDialog.current === panel) PushDialog.current = undefined;
+    });
   }
 
   private constructor(

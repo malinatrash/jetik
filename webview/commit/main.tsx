@@ -2,6 +2,7 @@ import { render } from 'preact';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import type { WorkingChange } from '../../src/git/models';
 import type { CommitEvents, CommitHostApi, CommitModel } from '../../src/protocol/commit';
+import { FileIcon } from '../shared/FileIcon';
 import { Icon } from '../shared/Icon';
 import { RepositorySelect } from '../shared/RepositorySelect';
 import { classes } from '../shared/format';
@@ -59,6 +60,7 @@ function Group(props: {
               onClick={(event) => event.stopPropagation()}
               onChange={(event) => props.onToggle([change.path], (event.target as HTMLInputElement).checked)}
             />
+            <FileIcon path={change.path} />
             <span class={`file-name status-${change.untracked ? 'untracked' : change.status}`}>{fileName(change.path)}</span>
             <span class="file-dir">{dirName(change.path)}</span>
             <span class="status-letter">{change.untracked ? '?' : change.status}</span>
