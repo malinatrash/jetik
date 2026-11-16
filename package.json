@@ -1,0 +1,342 @@
+{
+  "name": "gitjet",
+  "displayName": "GitJet — JetBrains-style Git",
+  "description": "The IntelliJ IDEA Git workflow in VS Code: graph log, commit tool window, push preview, branch actions, squash, reword, drop, cherry-pick.",
+  "version": "0.1.0",
+  "publisher": "malinatrash",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "SCM Providers",
+    "Other"
+  ],
+  "keywords": [
+    "git",
+    "jetbrains",
+    "intellij",
+    "idea",
+    "git log",
+    "git graph",
+    "commit",
+    "push",
+    "squash",
+    "rebase",
+    "cherry-pick",
+    "branches",
+    "keymap"
+  ],
+  "main": "./dist/extension.js",
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "gitjet-commit",
+          "title": "Commit",
+          "icon": "media/commit.svg"
+        }
+      ],
+      "panel": [
+        {
+          "id": "gitjet",
+          "title": "Git",
+          "icon": "media/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "gitjet-commit": [
+        {
+          "type": "webview",
+          "id": "gitjet.commitView",
+          "name": "Commit",
+          "icon": "media/commit.svg"
+        }
+      ],
+      "gitjet": [
+        {
+          "type": "webview",
+          "id": "gitjet.log",
+          "name": "Log",
+          "icon": "media/icon.svg"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "gitjet.showLog",
+        "title": "Show Git Log",
+        "category": "GitJet"
+      },
+      {
+        "command": "gitjet.showCommit",
+        "title": "Commit…",
+        "category": "GitJet"
+      },
+      {
+        "command": "gitjet.push",
+        "title": "Push…",
+        "category": "GitJet",
+        "icon": "$(repo-push)"
+      },
+      {
+        "command": "gitjet.updateProject",
+        "title": "Update Project",
+        "category": "GitJet",
+        "icon": "$(repo-pull)"
+      },
+      {
+        "command": "gitjet.fetch",
+        "title": "Fetch All Remotes",
+        "category": "GitJet",
+        "icon": "$(repo-fetch)"
+      },
+      {
+        "command": "gitjet.branches",
+        "title": "Branches…",
+        "category": "GitJet"
+      },
+      {
+        "command": "gitjet.newBranch",
+        "title": "New Branch…",
+        "category": "GitJet"
+      },
+      {
+        "command": "gitjet.refresh",
+        "title": "Refresh Log",
+        "category": "GitJet",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "gitjet.continueOperation",
+        "title": "Continue Rebase / Merge / Cherry-Pick",
+        "category": "GitJet"
+      },
+      {
+        "command": "gitjet.abortOperation",
+        "title": "Abort Rebase / Merge / Cherry-Pick",
+        "category": "GitJet"
+      },
+      {
+        "command": "gitjet.selectRepository",
+        "title": "Select Repository…",
+        "category": "GitJet"
+      },
+      {
+        "command": "gitjet.showOutput",
+        "title": "Show Git Console",
+        "category": "GitJet"
+      },
+      {
+        "command": "gitjet.undoLastOperation",
+        "title": "Undo Last Git Operation",
+        "category": "GitJet",
+        "icon": "$(discard)"
+      },
+      {
+        "command": "gitjet.cleanupBranches",
+        "title": "Delete Merged and Orphaned Branches…",
+        "category": "GitJet"
+      },
+      {
+        "command": "gitjet.stash",
+        "title": "Stash Changes…",
+        "category": "GitJet"
+      },
+      {
+        "command": "gitjet.unstash",
+        "title": "Unstash Changes…",
+        "category": "GitJet"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "gitjet.fetch",
+          "when": "view == gitjet.log",
+          "group": "navigation@1"
+        },
+        {
+          "command": "gitjet.updateProject",
+          "when": "view == gitjet.log",
+          "group": "navigation@2"
+        },
+        {
+          "command": "gitjet.push",
+          "when": "view == gitjet.log",
+          "group": "navigation@3"
+        },
+        {
+          "command": "gitjet.refresh",
+          "when": "view == gitjet.log",
+          "group": "navigation@4"
+        },
+        {
+          "command": "gitjet.selectRepository",
+          "when": "view == gitjet.log"
+        },
+        {
+          "command": "gitjet.showOutput",
+          "when": "view == gitjet.log"
+        },
+        {
+          "command": "gitjet.undoLastOperation",
+          "when": "view == gitjet.log"
+        },
+        {
+          "command": "gitjet.cleanupBranches",
+          "when": "view == gitjet.log"
+        },
+        {
+          "command": "gitjet.stash",
+          "when": "view == gitjet.commitView"
+        },
+        {
+          "command": "gitjet.unstash",
+          "when": "view == gitjet.commitView"
+        },
+        {
+          "command": "gitjet.undoLastOperation",
+          "when": "view == gitjet.commitView"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "gitjet.showLog",
+        "key": "alt+9",
+        "mac": "cmd+9",
+        "when": "!view.gitjet.log.visible"
+      },
+      {
+        "command": "workbench.action.closePanel",
+        "key": "alt+9",
+        "mac": "cmd+9",
+        "when": "view.gitjet.log.visible"
+      },
+      {
+        "command": "gitjet.showCommit",
+        "key": "alt+0",
+        "mac": "cmd+0",
+        "when": "!view.gitjet.commitView.visible"
+      },
+      {
+        "command": "workbench.action.closeSidebar",
+        "key": "alt+0",
+        "mac": "cmd+0",
+        "when": "view.gitjet.commitView.visible"
+      },
+      {
+        "command": "gitjet.showCommit",
+        "key": "ctrl+k",
+        "mac": "cmd+k"
+      },
+      {
+        "command": "gitjet.push",
+        "key": "ctrl+shift+k",
+        "mac": "cmd+shift+k"
+      },
+      {
+        "command": "gitjet.updateProject",
+        "key": "ctrl+t",
+        "mac": "cmd+t"
+      },
+      {
+        "command": "gitjet.branches",
+        "key": "ctrl+shift+`",
+        "mac": "ctrl+shift+`"
+      },
+      {
+        "command": "gitjet.undoLastOperation",
+        "key": "ctrl+alt+shift+z",
+        "mac": "cmd+alt+shift+z"
+      }
+    ],
+    "configuration": {
+      "title": "GitJet",
+      "properties": {
+        "gitjet.updateMethod": {
+          "type": "string",
+          "enum": [
+            "merge",
+            "rebase"
+          ],
+          "default": "merge",
+          "description": "How Update Project integrates incoming changes into the current branch."
+        },
+        "gitjet.log.pageSize": {
+          "type": "number",
+          "default": 500,
+          "minimum": 50,
+          "description": "Number of commits loaded per page in the log."
+        },
+        "gitjet.protectedBranches": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "main",
+            "master"
+          ],
+          "description": "Branches where force push is not allowed."
+        },
+        "gitjet.autoFetchMinutes": {
+          "type": "number",
+          "default": 10,
+          "minimum": 0,
+          "description": "Fetch all remotes in the background every N minutes while the window is focused. 0 disables it."
+        },
+        "gitjet.commit.issuePattern": {
+          "type": "string",
+          "default": "[A-Z][A-Z0-9]+-\\d+",
+          "description": "Regular expression that finds the issue key in the branch name. Empty disables the commit message prefix."
+        },
+        "gitjet.commit.messageTemplate": {
+          "type": "string",
+          "default": "{issue}: ",
+          "description": "Start of the commit message when the branch name contains an issue key."
+        },
+        "gitjet.followActiveEditor": {
+          "type": "boolean",
+          "default": false,
+          "description": "In a multi-repository workspace, switch the active repository to the one that contains the file in the active editor."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "node esbuild.mjs",
+    "watch": "node esbuild.mjs --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "node esbuild.mjs --test && node --test \"dist/test/*.test.cjs\"",
+    "package": "npm run typecheck && node esbuild.mjs --production && vsce package --no-dependencies",
+    "vscode:prepublish": "node esbuild.mjs --production"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@types/vscode": "~1.90.0",
+    "@vscode/codicons": "^0.0.36",
+    "@vscode/vsce": "^3.2.0",
+    "esbuild": "^0.24.0",
+    "preact": "^10.24.0",
+    "typescript": "^5.6.0"
+  },
+  "icon": "media/icon.png",
+  "galleryBanner": {
+    "color": "#1e1f26",
+    "theme": "dark"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/malinatrash/gitjet.git"
+  },
+  "bugs": {
+    "url": "https://github.com/malinatrash/gitjet/issues"
+  },
+  "homepage": "https://github.com/malinatrash/gitjet#readme"
+}
