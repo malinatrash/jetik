@@ -15,6 +15,14 @@ jobs:
         with:
           node-version: 22
           cache: npm
+      - name: Check that the tag matches the package version
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          version="$(node -p "require('./package.json').version")"
+          if [ "$GITHUB_REF_NAME" != "v$version" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match version $version in package.json"
+            exit 1
+          fi
       - run: npm ci
       - run: npm run typecheck
       - run: npm test
@@ -39,13 +47,37 @@ jobs:
           files: '*.vsix'
           generate_release_notes: true
 
-  # Publishes to the marketplaces whose tokens are configured as repository secrets.
+  # Publishes the packaged .vsix to the Visual Studio Marketplace through Trusted Publishing: the
+  # job trades its GitHub OIDC token for a short-lived Marketplace credential, so the repository
+  # stores no token. The publisher must have a Trusted Publishing policy that names this
+  # repository and this workflow file (ci.yml); without one the job fails.
   publish:
     if: startsWith(github.ref, 'refs/tags/v')
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - uses: actions/download-artifact@v4
+        with:
+          name: jetik-vsix
+      - name: Publish to Visual Studio Marketplace
+        run: npx vsce publish --oidc --packagePath *.vsix
+
+  # Publishes to Open VSX when its token is configured as a repository secret. A separate job, so
+  # that the unpinned ovsx CLI never runs where a Marketplace OIDC token can be requested.
+  publish-open-vsx:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
     env:
-      VSCE_PAT: ${{ secrets.VSCE_PAT }}
       OVSX_PAT: ${{ secrets.OVSX_PAT }}
     steps:
       - uses: actions/download-artifact@v4
@@ -54,9 +86,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Publish to Visual Studio Marketplace
-        if: env.VSCE_PAT != ''
-        run: npx --yes @vscode/vsce publish --packagePath *.vsix
       - name: Publish to Open VSX
         if: env.OVSX_PAT != ''
         run: |
