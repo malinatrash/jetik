@@ -21,7 +21,7 @@ jobs:
       - run: npm run package
       - uses: actions/upload-artifact@v4
         with:
-          name: gitjet-vsix
+          name: jetik-vsix
           path: '*.vsix'
 
   release:
@@ -33,7 +33,7 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
         with:
-          name: gitjet-vsix
+          name: jetik-vsix
       - uses: softprops/action-gh-release@v2
         with:
           files: '*.vsix'
@@ -50,7 +50,7 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
         with:
-          name: gitjet-vsix
+          name: jetik-vsix
       - uses: actions/setup-node@v4
         with:
           node-version: 22

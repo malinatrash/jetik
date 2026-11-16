@@ -7,8 +7,8 @@
   Graph log · Commit tool window · Push preview · Branch actions · Squash, reword, drop, cherry-pick
 </p>
 <p align="center">
-  <a href="https://github.com/malinatrash/gitjet/actions/workflows/ci.yml"><img src="https://github.com/malinatrash/gitjet/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
-  <a href="https://github.com/malinatrash/gitjet/releases"><img src="https://img.shields.io/github/v/release/malinatrash/gitjet?label=release" alt="Release"></a>
+  <a href="https://github.com/malinatrash/jetik/actions/workflows/ci.yml"><img src="https://github.com/malinatrash/jetik/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://github.com/malinatrash/jetik/releases"><img src="https://img.shields.io/github/v/release/malinatrash/jetik?label=release" alt="Release"></a>
   <img src="https://img.shields.io/badge/VS%20Code-%5E1.90-007ACC" alt="VS Code ^1.90">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green" alt="MIT"></a>
 </p>
@@ -118,7 +118,7 @@ rebind anything in **Keyboard Shortcuts** (search for `gitjet`).
 
 ## Install
 
-Search for **Jetik** in the Extensions view (once it is listed in the Marketplace), or download the `.vsix` from [Releases](https://github.com/malinatrash/gitjet/releases) and run:
+Search for **Jetik** in the Extensions view (once it is listed in the Marketplace), or download the `.vsix` from [Releases](https://github.com/malinatrash/jetik/releases) and run:
 
 ```sh
 code --install-extension jetik-0.1.2.vsix

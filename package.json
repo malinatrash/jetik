@@ -333,10 +333,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/malinatrash/gitjet.git"
+    "url": "https://github.com/malinatrash/jetik.git"
   },
   "bugs": {
-    "url": "https://github.com/malinatrash/gitjet/issues"
+    "url": "https://github.com/malinatrash/jetik/issues"
   },
-  "homepage": "https://github.com/malinatrash/gitjet#readme"
+  "homepage": "https://github.com/malinatrash/jetik#readme"
 }
