@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.3
+
+- File lists in the Commit view, the log and the Push dialog show icons from the active file icon theme.
+- Fix the graph drawing the main line as a fork of a feature branch whose tip is newer.
+
 ## 0.1.2
 
 - Renamed to Jetik. Command and setting ids keep the `gitjet.` prefix.
