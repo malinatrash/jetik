@@ -2,6 +2,7 @@
 
 ## 0.1.2
 
+- Renamed to Jetik. Command and setting ids keep the `gitjet.` prefix.
 - New single-tone icons for the extension and the Git tool window.
 
 ## 0.1.1

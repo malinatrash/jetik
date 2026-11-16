@@ -16,7 +16,7 @@ import { StatusBar } from './host/ui/statusBar';
 
 /** Composition root: builds the object graph and binds commands to it. */
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
-  const output = vscode.window.createOutputChannel('GitJet');
+  const output = vscode.window.createOutputChannel('Jetik');
   const logger: GitLogger = {
     command: (cwd, args) => output.appendLine(`[${new Date().toLocaleTimeString()}] ${cwd}> git ${args.join(' ')}`),
     result: (result, ms) => {
@@ -59,7 +59,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   const withRepo = (handler: (repo: Repository) => unknown) => async () => {
     const repo = repos.active;
     if (!repo) {
-      void vscode.window.showWarningMessage('GitJet: no git repository found in this workspace.');
+      void vscode.window.showWarningMessage('Jetik: no git repository found in this workspace.');
       return;
     }
     await handler(repo);

@@ -1,7 +1,7 @@
 <p align="center">
-  <img src="media/icon.png" width="96" alt="GitJet">
+  <img src="media/icon.png" width="96" alt="Jetik">
 </p>
-<h1 align="center">GitJet</h1>
+<h1 align="center">Jetik</h1>
 <p align="center">
   The IntelliJ IDEA Git workflow, in VS Code.<br>
   Graph log · Commit tool window · Push preview · Branch actions · Squash, reword, drop, cherry-pick
@@ -15,10 +15,10 @@
 
 ![Git log with a multi-commit selection and its context menu](docs/screenshots/log.png)
 
-If your hands know `⌘K`, `⇧⌘K`, `⌘T` and "select a few commits → Squash", GitJet brings that muscle memory to VS Code:
+If your hands know `⌘K`, `⇧⌘K`, `⌘T` and "select a few commits → Squash", Jetik brings that muscle memory to VS Code:
 the same tool windows, the same menus in the same order, the same shortcuts.
 
-> GitJet is an independent project and is not affiliated with or endorsed by JetBrains.
+> Jetik is an independent project and is not affiliated with or endorsed by JetBrains.
 
 ## Features
 
@@ -67,7 +67,7 @@ The same actions are in the Branches popup: `` ⌃⇧` `` / `` Ctrl+Shift+` `` o
 See what is about to leave your machine: outgoing commits, their files, the target remote and branch.
 
 - Force push uses `--force-with-lease` and is disabled for protected branches.
-- Rejected push? Choose Rebase or Merge and GitJet updates and pushes again.
+- Rejected push? Choose Rebase or Merge and Jetik updates and pushes again.
 - When the remote prints a merge/pull request link, the notification gets a **Create Merge Request** button.
 
 ![Push dialog](docs/screenshots/push.png)
@@ -118,7 +118,7 @@ rebind anything in **Keyboard Shortcuts** (search for `gitjet`).
 
 ## Install
 
-Search for **GitJet** in the Extensions view (once it is listed in the Marketplace), or download the `.vsix` from [Releases](https://github.com/malinatrash/gitjet/releases) and run:
+Search for **Jetik** in the Extensions view (once it is listed in the Marketplace), or download the `.vsix` from [Releases](https://github.com/malinatrash/gitjet/releases) and run:
 
 ```sh
 code --install-extension jetik-0.1.2.vsix
@@ -133,7 +133,7 @@ Requires Git 2.31+ and VS Code 1.90+.
 - A dedicated interactive rebase editor — "Interactively Rebase from Here" opens `git rebase -i` in the terminal.
 - History edits across merge commits are refused rather than attempted.
 - Git runs without a terminal: authentication must work through an SSH agent or a credential helper.
-  If git needs a prompt, GitJet offers to rerun the command in the integrated terminal.
+  If git needs a prompt, Jetik offers to rerun the command in the integrated terminal.
 
 ## Architecture
 

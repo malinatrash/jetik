@@ -10,9 +10,9 @@ export class StatusBar implements vscode.Disposable {
 
   constructor(private readonly repos: RepositoryManager) {
     this.branch.command = 'gitjet.branches';
-    this.branch.tooltip = 'Git Branches (GitJet)';
+    this.branch.tooltip = 'Git Branches (Jetik)';
     this.repository.command = 'gitjet.selectRepository';
-    this.repository.tooltip = 'Git Repository (GitJet): click to switch';
+    this.repository.tooltip = 'Git Repository (Jetik): click to switch';
     this.operation.command = 'gitjet.continueOperation';
     this.operation.backgroundColor = new vscode.ThemeColor('statusBarItem.warningBackground');
     this.subscriptions = [
@@ -44,7 +44,7 @@ export class StatusBar implements vscode.Disposable {
 
     if (operation) {
       this.operation.text = `$(warning) ${operation} in progress`;
-      this.operation.tooltip = 'Click to continue; use "GitJet: Abort…" to abort';
+      this.operation.tooltip = 'Click to continue; use "Jetik: Abort…" to abort';
       this.operation.show();
     } else {
       this.operation.hide();

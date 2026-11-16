@@ -1,6 +1,6 @@
 {
   "name": "jetik",
-  "displayName": "GitJet - JetBrains-style Git",
+  "displayName": "Jetik - JetBrains-style Git",
   "description": "The IntelliJ IDEA Git workflow in VS Code: graph log, commit tool window, push preview, branch actions, squash, reword, drop, cherry-pick.",
   "version": "0.1.2",
   "publisher": "malinatrash",
@@ -70,87 +70,87 @@
       {
         "command": "gitjet.showLog",
         "title": "Show Git Log",
-        "category": "GitJet"
+        "category": "Jetik"
       },
       {
         "command": "gitjet.showCommit",
         "title": "Commit…",
-        "category": "GitJet"
+        "category": "Jetik"
       },
       {
         "command": "gitjet.push",
         "title": "Push…",
-        "category": "GitJet",
+        "category": "Jetik",
         "icon": "$(repo-push)"
       },
       {
         "command": "gitjet.updateProject",
         "title": "Update Project",
-        "category": "GitJet",
+        "category": "Jetik",
         "icon": "$(repo-pull)"
       },
       {
         "command": "gitjet.fetch",
         "title": "Fetch All Remotes",
-        "category": "GitJet",
+        "category": "Jetik",
         "icon": "$(repo-fetch)"
       },
       {
         "command": "gitjet.branches",
         "title": "Branches…",
-        "category": "GitJet"
+        "category": "Jetik"
       },
       {
         "command": "gitjet.newBranch",
         "title": "New Branch…",
-        "category": "GitJet"
+        "category": "Jetik"
       },
       {
         "command": "gitjet.refresh",
         "title": "Refresh Log",
-        "category": "GitJet",
+        "category": "Jetik",
         "icon": "$(refresh)"
       },
       {
         "command": "gitjet.continueOperation",
         "title": "Continue Rebase / Merge / Cherry-Pick",
-        "category": "GitJet"
+        "category": "Jetik"
       },
       {
         "command": "gitjet.abortOperation",
         "title": "Abort Rebase / Merge / Cherry-Pick",
-        "category": "GitJet"
+        "category": "Jetik"
       },
       {
         "command": "gitjet.selectRepository",
         "title": "Select Repository…",
-        "category": "GitJet"
+        "category": "Jetik"
       },
       {
         "command": "gitjet.showOutput",
         "title": "Show Git Console",
-        "category": "GitJet"
+        "category": "Jetik"
       },
       {
         "command": "gitjet.undoLastOperation",
         "title": "Undo Last Git Operation",
-        "category": "GitJet",
+        "category": "Jetik",
         "icon": "$(discard)"
       },
       {
         "command": "gitjet.cleanupBranches",
         "title": "Delete Merged and Orphaned Branches…",
-        "category": "GitJet"
+        "category": "Jetik"
       },
       {
         "command": "gitjet.stash",
         "title": "Stash Changes…",
-        "category": "GitJet"
+        "category": "Jetik"
       },
       {
         "command": "gitjet.unstash",
         "title": "Unstash Changes…",
-        "category": "GitJet"
+        "category": "Jetik"
       }
     ],
     "menus": {
@@ -257,7 +257,7 @@
       }
     ],
     "configuration": {
-      "title": "GitJet",
+      "title": "Jetik",
       "properties": {
         "gitjet.updateMethod": {
           "type": "string",
