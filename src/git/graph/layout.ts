@@ -37,8 +37,9 @@ export class GraphLayouter {
     const bottom: GraphEdge[] = [];
 
     let column = lanes.findIndex((lane) => lane?.hash === hash);
+    const continuesLane = column !== -1;
     let color: number;
-    if (column === -1) {
+    if (!continuesLane) {
       column = this.allocate();
       color = this.nextColor++;
     } else {
@@ -61,7 +62,11 @@ export class GraphLayouter {
     // Lower half: fan out to parents. The first parent inherits the commit's lane and color.
     parents.forEach((parent, index) => {
       const existing = lanes.findIndex((lane) => lane?.hash === parent);
-      if (existing !== -1) {
+      // A branch tip listed earlier may have reserved a lane further right for the same parent.
+      // An ongoing lane then goes straight on and that lane converges on the parent's row,
+      // rather than this one bending into it and handing over its column and color.
+      const keepsLane = index === 0 && continuesLane && existing > column;
+      if (existing !== -1 && !keepsLane) {
         bottom.push({ from: column, to: existing, color: index === 0 ? color : lanes[existing]!.color });
         return;
       }
