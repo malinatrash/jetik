@@ -2,7 +2,7 @@
   "name": "jetik",
   "displayName": "Jetik - JetBrains-style Git",
   "description": "The IntelliJ IDEA Git workflow in VS Code: graph log, commit tool window, push preview, branch actions, squash, reword, drop, cherry-pick.",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "publisher": "malinatrash",
   "license": "MIT",
   "engines": {
