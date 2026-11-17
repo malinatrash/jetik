@@ -5,6 +5,7 @@ import type { Repository } from '../../git/repository';
 import type { CommitEvents, CommitHostApi, CommitModel, CommitRequestDto } from '../../protocol/commit';
 import { serve, type Server } from '../../protocol/rpc';
 import type { Workbench } from '../actions/action';
+import { generateCommitMessage } from '../commitMessageGenerator';
 import type { RepositoryManager } from '../repositoryManager';
 import { settings } from '../settings';
 import { NOTHING, WORKING_TREE, type DiffPresenter } from './diffPresenter';
@@ -18,6 +19,7 @@ export class CommitView implements vscode.WebviewViewProvider, CommitHostApi {
 
   private server?: Server<CommitEvents>;
   private changes: WorkingChange[] = [];
+  private generation?: vscode.CancellationTokenSource;
 
   constructor(
     private readonly webviews: Webviews,
@@ -108,6 +110,35 @@ export class CommitView implements vscode.WebviewViewProvider, CommitHostApi {
 
   lastMessage(): Promise<string> {
     return this.repo().workingTree.lastMessage();
+  }
+
+  async generateMessage(paths: string[], amend: boolean): Promise<string> {
+    const repo = this.repo();
+    this.generation?.cancel();
+    const generation = new vscode.CancellationTokenSource();
+    this.generation = generation;
+    try {
+      const [diff, recentMessages, head] = await Promise.all([
+        repo.workingTree.diffOf(this.select(paths), amend),
+        // The commit being amended is rewritten, so it is not an example of the style.
+        repo.log.recentMessages(20, amend ? 1 : 0),
+        repo.refs.head(),
+      ]);
+      return await generateCommitMessage(
+        { diff, recentMessages, branch: head.branch, prefix: settings.messagePrefix(head.branch) },
+        generation.token,
+      );
+    } catch (error) {
+      if (generation.token.isCancellationRequested) throw new Error('Generation stopped');
+      throw error;
+    } finally {
+      generation.dispose();
+      if (this.generation === generation) this.generation = undefined;
+    }
+  }
+
+  async cancelGeneration(): Promise<void> {
+    this.generation?.cancel();
   }
 
   private select(paths: readonly string[]): WorkingChange[] {

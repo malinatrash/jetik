@@ -18,6 +18,9 @@ export interface Outgoing {
   commits: Commit[];
   /** The target branch does not exist on the remote yet. */
   isNew: boolean;
+  /** Commits on the remote branch missing from `source` (dropped, reworded, rebased away), newest first.
+   * A plain push is rejected while there are any; a force push removes them from the remote. */
+  discarded: Commit[];
 }
 
 export class RemoteService {
@@ -49,10 +52,11 @@ export class RemoteService {
   async outgoing(source: string, remote: string, target: string): Promise<Outgoing> {
     const remoteRef = `refs/remotes/${remote}/${target}`;
     if (await this.refs.resolve(remoteRef)) {
-      return { commits: await this.log.range(remoteRef, source), isNew: false };
+      const [commits, discarded] = await Promise.all([this.log.range(remoteRef, source), this.log.range(source, remoteRef)]);
+      return { commits, isNew: false, discarded };
     }
     const stdout = await this.git.read(['rev-list', '--max-count=1000', source, '--not', `--remotes=${remote}`, '--']);
-    return { commits: await this.log.byHashes(stdout.split('\n').filter(Boolean)), isNew: true };
+    return { commits: await this.log.byHashes(stdout.split('\n').filter(Boolean)), isNew: true, discarded: [] };
   }
 
   /** Pushes and returns what the remote said (hosting services print merge request links there). */

@@ -1,6 +1,6 @@
 import { render } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
-import type { FileChange } from '../../src/git/models';
+import type { Commit, FileChange } from '../../src/git/models';
 import type { PushEvents, PushHostApi, PushModel, PushTarget } from '../../src/protocol/push';
 import { FileTree } from '../shared/FileTree';
 import { Icon } from '../shared/Icon';
@@ -57,9 +57,13 @@ function App() {
     };
   }, [shown.join()]);
 
+  const discarded = outgoing?.discarded ?? [];
+  // The remote has commits the local branch dropped or rewrote: only a force push can update it.
+  const diverged = discarded.length > 0;
   const canPush = outgoing !== undefined && target.trim() !== '' && (commits.length > 0 || outgoing.isNew || tags);
+  const canForce = outgoing !== undefined && outgoing.forceAllowed && target.trim() !== '' && (canPush || diverged);
   const push = (force: boolean) => {
-    if (!canPush) return;
+    if (force ? !canForce : !canPush) return;
     setError(undefined);
     host.push({ remote, target: target.trim(), force, tags }).catch((failure: Error) => setError(failure.message));
   };
@@ -67,7 +71,8 @@ function App() {
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.key === 'Escape') void host.cancel();
-      if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) push(false);
+      // ⌘⇧Enter always force pushes; ⌘Enter does too when nothing but a force push can update the remote.
+      if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) push(event.shiftKey || (diverged && commits.length === 0));
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
@@ -96,26 +101,35 @@ function App() {
         <span class="spacer" />
         <span class="hint">
           {commits.length} {commits.length === 1 ? 'commit' : 'commits'}
+          {diverged && `, ${discarded.length} to remove`}
         </span>
       </div>
       <div class="push-body">
         <div class="push-commits">
-          {commits.length === 0 && <div class="empty">{outgoing.isNew ? 'No new commits; the branch will be created on the remote' : 'No commits to push'}</div>}
+          {commits.length === 0 && !diverged && (
+            <div class="empty">{outgoing.isNew ? 'No new commits; the branch will be created on the remote' : 'No commits to push'}</div>
+          )}
           {commits.map((commit) => (
-            <div
-              class={classes('commit-row', selected === commit.hash && 'selected')}
-              onClick={() => setSelected(selected === commit.hash ? undefined : commit.hash)}
-            >
-              <div class="commit-subject">
-                <span class="dot" />
-                <span class="subject-text" title={commit.subject}>
-                  {commit.subject}
-                </span>
-              </div>
-              <div class="commit-author">{commit.author}</div>
-              <div class="commit-date">{formatDate(commit.date)}</div>
-            </div>
+            <CommitRow commit={commit} selected={selected === commit.hash} onClick={() => setSelected(selected === commit.hash ? undefined : commit.hash)} />
           ))}
+          {diverged && (
+            <>
+              <div class="push-section discarded">
+                <Icon name="warning" />
+                {outgoing.forceAllowed
+                  ? `Not in ${model.sourceLabel}; Force Push removes ${discarded.length === 1 ? 'it' : 'them'} from ${remote}/${target.trim()}`
+                  : `Not in ${model.sourceLabel}; '${target.trim()}' is protected, so they cannot be removed`}
+              </div>
+              {discarded.map((commit) => (
+                <CommitRow
+                  commit={commit}
+                  discarded
+                  selected={selected === commit.hash}
+                  onClick={() => setSelected(selected === commit.hash ? undefined : commit.hash)}
+                />
+              ))}
+            </>
+          )}
         </div>
         <div class="push-files">
           <div class="pane-title">
@@ -131,22 +145,43 @@ function App() {
           Push tags
         </label>
         <span class="spacer" />
-        <span class="hint">⌘/Ctrl+Enter to push, Esc to cancel</span>
+        <span class="hint">{diverged && commits.length === 0 ? '⌘/Ctrl+Enter to force push' : '⌘/Ctrl+Enter to push, ⇧ to force'}, Esc to cancel</span>
         <button class="secondary" onClick={() => void host.cancel()}>
           Cancel
         </button>
         <button
-          class="secondary"
-          disabled={!canPush || !outgoing.forceAllowed}
+          class={classes(!diverged && 'secondary')}
+          disabled={!canForce}
           title={outgoing.forceAllowed ? 'Push with --force-with-lease' : `'${target}' is a protected branch`}
           onClick={() => push(true)}
         >
           Force Push
         </button>
-        <button disabled={!canPush} onClick={() => push(false)}>
+        <button
+          class={classes(diverged && 'secondary')}
+          disabled={!canPush}
+          title={diverged ? `${remote}/${target.trim()} has commits that are not in ${model.sourceLabel}; a plain push will be rejected` : undefined}
+          onClick={() => push(false)}
+        >
           Push
         </button>
       </div>
+    </div>
+  );
+}
+
+function CommitRow(props: { commit: Commit; selected: boolean; discarded?: boolean; onClick(): void }) {
+  const { commit } = props;
+  return (
+    <div class={classes('commit-row', props.discarded && 'discarded', props.selected && 'selected')} onClick={props.onClick}>
+      <div class="commit-subject">
+        <span class="dot" />
+        <span class="subject-text" title={commit.subject}>
+          {commit.subject}
+        </span>
+      </div>
+      <div class="commit-author">{commit.author}</div>
+      <div class="commit-date">{formatDate(commit.date)}</div>
     </div>
   );
 }

@@ -704,6 +704,32 @@ button:disabled {
   border-right: 1px solid var(--border);
 }
 
+.push-section {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  color: var(--muted);
+  border-top: 1px solid var(--border);
+}
+
+.push-commits > .push-section:first-child {
+  border-top: none;
+}
+
+.push-section.discarded {
+  color: var(--vscode-editorWarning-foreground, #cca700);
+}
+
+.commit-row.discarded .subject-text {
+  text-decoration: line-through;
+  opacity: 0.75;
+}
+
+.commit-row.discarded .dot {
+  background: var(--vscode-gitDecoration-deletedResourceForeground, #c74e39);
+}
+
 .push-files {
   display: flex;
   flex: 2;
@@ -787,6 +813,12 @@ button:disabled {
   gap: 8px;
   padding: 8px 10px 10px;
   border-top: 1px solid var(--border);
+}
+
+.commit-form-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .commit-form .amend {

@@ -3,7 +3,7 @@ import type { Repository } from '../../git/repository';
 import { splitRemoteBranch } from '../../git/services/refService';
 import { classifyRemoteFailure, findReviewLink } from '../../git/services/remoteService';
 import type { PushEvents, PushHostApi, PushModel, PushRequest, PushTarget } from '../../protocol/push';
-import type { FileChange } from '../../git/models';
+import { shortHash, type FileChange } from '../../git/models';
 import { serve } from '../../protocol/rpc';
 import type { PushSource } from '../actions/action';
 import { SelectionChanges } from '../selectionChanges';
@@ -102,11 +102,17 @@ export class PushDialog implements PushHostApi {
       throw new Error(`Force push to protected branch '${request.target}' is not allowed.`);
     }
     if (request.force) {
-      const confirmed = await ui.confirm(
-        `Force push ${source.label} to ${request.remote}/${request.target}?`,
-        'Commits on the remote branch that you do not have locally will be overwritten.',
-        'Force Push',
-      );
+      const { discarded } = await repo.remotes.outgoing(source.revision, request.remote, request.target);
+      const detail =
+        discarded.length > 0
+          ? `${discarded.length === 1 ? 'This commit' : `These ${discarded.length} commits`} will be removed from ${request.remote}/${request.target}:\n` +
+            discarded
+              .slice(0, 10)
+              .map((commit) => `• ${shortHash(commit.hash)} ${commit.subject}`)
+              .join('\n') +
+            (discarded.length > 10 ? `\n… and ${discarded.length - 10} more` : '')
+          : 'Commits on the remote branch that you do not have locally will be overwritten.';
+      const confirmed = await ui.confirm(`Force push ${source.label} to ${request.remote}/${request.target}?`, detail, 'Force Push');
       if (!confirmed) return;
     }
     this.panel.dispose();

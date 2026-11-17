@@ -47,6 +47,18 @@ export class LogService {
     );
   }
 
+  /** Full messages of the latest non-merge commits reachable from HEAD, newest first; empty before the first commit. */
+  async recentMessages(limit: number, skip = 0): Promise<string[]> {
+    const result = await this.git.probe(['log', '-z', '--no-merges', `--skip=${skip}`, `--max-count=${limit}`, '--format=%B', 'HEAD', '--'], {
+      allowExitCodes: [128],
+    });
+    if (result.exitCode !== 0) return [];
+    return result.stdout
+      .split('\0')
+      .map((message) => message.trim())
+      .filter(Boolean);
+  }
+
   async byHashes(hashes: readonly string[]): Promise<Commit[]> {
     if (hashes.length === 0) return [];
     return parseCommits(

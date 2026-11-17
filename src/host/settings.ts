@@ -34,6 +34,14 @@ export const settings = {
   followActiveEditor(): boolean {
     return vscode.workspace.getConfiguration('gitjet').get<boolean>('followActiveEditor', false);
   },
+  /** Part of the id, family or name of the language model that writes commit messages; empty picks the first one. */
+  commitMessageModel(): string {
+    return vscode.workspace.getConfiguration('gitjet').get<string>('commit.generate.model', '').trim();
+  },
+  /** Extra instructions for generated commit messages, e.g. a language or a convention. */
+  commitMessageInstructions(): string {
+    return vscode.workspace.getConfiguration('gitjet').get<string>('commit.generate.instructions', '');
+  },
   protectedBranches(): string[] {
     return vscode.workspace.getConfiguration('gitjet').get<string[]>('protectedBranches', ['main', 'master']);
   },

@@ -4,6 +4,8 @@ export interface PushTarget {
   commits: Commit[];
   /** The branch will be created on the remote. */
   isNew: boolean;
+  /** Remote commits a force push would remove; a plain push is rejected while there are any. */
+  discarded: Commit[];
   forceAllowed: boolean;
 }
 

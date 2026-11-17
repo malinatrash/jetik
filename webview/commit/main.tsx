@@ -79,6 +79,7 @@ function App() {
   const [amend, setAmend] = useState(false);
   const [active, setActive] = useState<string>();
   const [busy, setBusy] = useState(false);
+  const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string>();
 
   const setMessage = (value: string) => {
@@ -146,6 +147,20 @@ function App() {
     }
   };
 
+  const generate = async () => {
+    if (generating) return void host.cancelGeneration();
+    if (checked.size === 0 && !amend) return setError('Select files to describe');
+    setError(undefined);
+    setGenerating(true);
+    try {
+      setMessage(await host.generateMessage([...checked], amend));
+    } catch (failure) {
+      setError((failure as Error).message);
+    } finally {
+      setGenerating(false);
+    }
+  };
+
   const onKeyDown = (event: KeyboardEvent) => {
     if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) {
       event.preventDefault();
@@ -192,13 +207,24 @@ function App() {
         />
       </div>
       <div class="commit-form">
-        <label class="amend">
-          <input type="checkbox" checked={amend} onChange={(event) => void toggleAmend((event.target as HTMLInputElement).checked)} />
-          Amend
-        </label>
+        <div class="commit-form-row">
+          <label class="amend">
+            <input type="checkbox" checked={amend} onChange={(event) => void toggleAmend((event.target as HTMLInputElement).checked)} />
+            Amend
+          </label>
+          <span class="spacer" />
+          <span
+            class="icon-button"
+            title={generating ? 'Stop Generating' : 'Generate Commit Message'}
+            onClick={() => void generate()}
+          >
+            <Icon name={generating ? 'loading codicon-modifier-spin' : 'sparkle'} />
+          </span>
+        </div>
         <textarea
-          placeholder="Commit Message"
+          placeholder={generating ? 'Generating commit message…' : 'Commit Message'}
           spellcheck={false}
+          readOnly={generating}
           value={message}
           onInput={(event) => setMessage((event.target as HTMLTextAreaElement).value)}
           onKeyDown={onKeyDown}

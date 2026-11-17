@@ -156,6 +156,48 @@ test('outgoing commits and push to a bare remote', async () => {
   assert.equal(await repo.history.isPushed(sh('rev-parse', 'HEAD')), false);
 });
 
+test('diff for a generated message covers only the chosen files, plus the last commit on amend', async () => {
+  const { repo, dir, sh } = createRepo(['a', 'b']);
+  writeFileSync(join(dir, 'a.txt'), 'changed a');
+  writeFileSync(join(dir, 'b.txt'), 'changed b');
+  writeFileSync(join(dir, 'new.txt'), 'brand new');
+  const changes = await repo.workingTree.status();
+  const pick = (...paths: string[]) => changes.filter((change) => paths.includes(change.path));
+
+  const diff = await repo.workingTree.diffOf(pick('a.txt', 'new.txt'), false);
+  assert.match(diff, /\+changed a/);
+  assert.match(diff, /\+brand new/);
+  assert.doesNotMatch(diff, /changed b/);
+
+  const amended = await repo.workingTree.diffOf(pick('a.txt'), true);
+  assert.match(amended, /b\/b\.txt[\s\S]*\+b/);
+  assert.match(amended, /\+changed a/);
+
+  sh('commit', '-qam', 'subject\n\nbody line');
+  assert.deepEqual(await repo.log.recentMessages(2), ['subject\n\nbody line', 'b']);
+  assert.deepEqual(await repo.log.recentMessages(5, 1), ['b', 'a']);
+});
+
+test('a commit dropped after pushing is listed as discarded and removed by a force push', async () => {
+  const { repo, sh } = createRepo(['a', 'b', 'c']);
+  const remote = mkdtempSync(join(tmpdir(), 'gitjet-remote-'));
+  execFileSync('git', ['init', '-q', '--bare', remote]);
+  sh('remote', 'add', 'origin', remote);
+  await repo.remotes.push({ remote: 'origin', source: 'main', target: 'main', force: false, tags: false, setUpstream: true });
+
+  const [c] = await repo.log.query({ skip: 0, limit: 1 });
+  sh('reset', '-q', '--hard', 'HEAD~1');
+  let outgoing = await repo.remotes.outgoing('main', 'origin', 'main');
+  assert.deepEqual(outgoing.commits, []);
+  assert.deepEqual(outgoing.discarded.map((commit) => commit.hash), [c.hash]);
+
+  await assert.rejects(repo.remotes.push({ remote: 'origin', source: 'main', target: 'main', force: false, tags: false, setUpstream: false }));
+  await repo.remotes.push({ remote: 'origin', source: 'main', target: 'main', force: true, tags: false, setUpstream: false });
+  outgoing = await repo.remotes.outgoing('main', 'origin', 'main');
+  assert.deepEqual(outgoing.discarded, []);
+  assert.equal(execFileSync('git', ['--git-dir', remote, 'log', '--format=%s', 'main'], { encoding: 'utf8' }).trim(), 'b\na');
+});
+
 test('fixup melds local changes into an older commit', async () => {
   const { repo, dir, sh } = createRepo(['a', 'b', 'c']);
   const [, b] = await repo.log.query({ skip: 0, limit: 10 });

@@ -301,6 +301,17 @@
           "default": "{issue}: ",
           "description": "Start of the commit message when the branch name contains an issue key."
         },
+        "gitjet.commit.generate.model": {
+          "type": "string",
+          "default": "",
+          "description": "Language model that generates commit messages: part of its id, family or name (for example \"claude\" or \"gpt-4o\"). Empty uses the first available model. Models come from GitHub Copilot or other extensions that provide them to VS Code."
+        },
+        "gitjet.commit.generate.instructions": {
+          "type": "string",
+          "default": "",
+          "editPresentationType": "multilineText",
+          "markdownDescription": "Extra instructions for generated commit messages, for example `Write in Russian` or `Use Conventional Commits`."
+        },
         "gitjet.followActiveEditor": {
           "type": "boolean",
           "default": false,

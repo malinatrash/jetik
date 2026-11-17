@@ -2,6 +2,9 @@ import type { WorkingChange } from '../models';
 import type { GitRunner } from '../runner';
 import type { SequencerService } from './sequencerService';
 
+/** Git's well-known empty tree: the base to diff against before the first commit. */
+const EMPTY_TREE = '4b825dc642cb6eb9a060e54bf8d69288fbee4904';
+
 export interface CommitRequest {
   /** Changes to include; everything else stays uncommitted, staged or not. */
   changes: readonly WorkingChange[];
@@ -47,6 +50,30 @@ export class WorkingTreeService {
     // A newly added file has nothing to go back to: it becomes unversioned again.
     if (added.length > 0) await this.git.write(['rm', '--cached', '-f', '-q', '--', ...added.map((change) => change.path)]);
     if (restore.length > 0) await this.git.write(['restore', '--source=HEAD', '--staged', '--worktree', '--', ...restore]);
+  }
+
+  /**
+   * Unified diff of what committing `changes` would record, to describe it in a message.
+   * With `amend` the last commit's own changes come first, since the amended commit keeps them.
+   */
+  async diffOf(changes: readonly WorkingChange[], amend: boolean): Promise<string> {
+    const hasHead = (await this.git.probe(['rev-parse', '--verify', '-q', 'HEAD'], { allowExitCodes: [1] })).exitCode === 0;
+    const parts: string[] = [];
+    if (amend && hasHead) {
+      const hasParent = (await this.git.probe(['rev-parse', '--verify', '-q', 'HEAD~1'], { allowExitCodes: [1] })).exitCode === 0;
+      parts.push(await this.git.read(['diff', '-M', hasParent ? 'HEAD~1' : EMPTY_TREE, 'HEAD', '--']));
+    }
+    const tracked = changes.filter((change) => !change.untracked);
+    if (tracked.length > 0) {
+      const paths = tracked.flatMap((change) => (change.oldPath ? [change.path, change.oldPath] : [change.path]));
+      parts.push(await this.git.read(['diff', '-M', hasHead ? 'HEAD' : EMPTY_TREE, '--', ...paths]));
+    }
+    for (const change of changes.filter((candidate) => candidate.untracked)) {
+      // Exits with 1 when the files differ, which they always do here.
+      const result = await this.git.probe(['diff', '--no-index', '--', '/dev/null', change.path], { allowExitCodes: [1] });
+      parts.push(result.stdout);
+    }
+    return parts.filter(Boolean).join('\n');
   }
 
   /** Message of the last commit, for Amend. */

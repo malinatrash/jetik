@@ -29,6 +29,9 @@ export interface CommitHostApi {
   commit(request: CommitRequestDto): Promise<boolean>;
   rollback(paths: string[]): Promise<void>;
   lastMessage(): Promise<string>;
+  /** Writes a message for the checked files (plus the last commit with `amend`) with a language model. */
+  generateMessage(paths: string[], amend: boolean): Promise<string>;
+  cancelGeneration(): Promise<void>;
   selectRepository(root: string): Promise<void>;
 }
 
